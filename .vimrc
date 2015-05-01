@@ -87,6 +87,7 @@ let g:pydoc_cmd = '/usr/bin/pydoc3'
 set mouse=a
 " Enable neocomplete
 let g:neocomplete#enable_at_start=1
+let g:neocomplete#sources#omni#input_patterns = {}
 call neocomplete#initialize()
 
 " Arrow keys
@@ -100,7 +101,9 @@ vnoremap <up> gk
 vnoremap <down> gj
 vnoremap > >gv
 vnoremap < <gv
-inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+inoremap <C-Space> <C-x><C-o>
+inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+imap <C-@> <C-Space>
 let g:UltiSnipsExpandTrigger="<c-j>"
 
 au FileType haskell,prolog,matlab,tmux	setlocal nospell
