@@ -22,6 +22,7 @@ Plugin 'bling/vim-airline'
 Plugin 'Keithbsmiley/tmux.vim'
 Plugin 'kien/ctrlp.vim'
 Plugin 'fs111/pydoc.vim'
+Plugin 'Shougo/neocomplete.vim'
 
 call vundle#end()
 
@@ -82,6 +83,12 @@ let g:airline_powerline_fonts = 1
 let g:ctrlp_cmd='CtrlPMixed'
 " Use python3 documentation
 let g:pydoc_cmd = '/usr/bin/pydoc3'
+" Always enable in mouse, as it doesn't work in tmux otherwise
+set mouse=a
+" Enable neocomplete
+let g:neocomplete#enable_at_start=1
+call neocomplete#initialize()
+
 
 " Arrow keys
 " https://gist.github.com/hugoroy/5822226
@@ -94,6 +101,7 @@ vnoremap <up> gk
 vnoremap <down> gj
 vnoremap > >gv
 vnoremap < <gv
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
 let g:UltiSnipsExpandTrigger="<c-j>"
 
 au FileType haskell,prolog,matlab,tmux	setlocal nospell
