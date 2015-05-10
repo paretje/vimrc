@@ -24,6 +24,7 @@ Plugin 'kien/ctrlp.vim'
 Plugin 'fs111/pydoc.vim'
 Plugin 'Shougo/neocomplete.vim'
 Plugin 'plasticboy/vim-markdown'
+Plugin 'danielmiessler/VimBlog'
 
 call vundle#end()
 
@@ -101,6 +102,9 @@ let g:UltiSnipsExpandTrigger="<c-j>"
 let g:neocomplete#enable_at_start=1
 let g:neocomplete#sources#omni#input_patterns = {}
 call neocomplete#initialize()
+
+" VimBlog options
+let VIMPRESS = {} " circumvent bug when opening post
 
 " 
 au FileType haskell,prolog,matlab,tmux	setlocal nospell
