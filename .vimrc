@@ -37,8 +37,14 @@ if !has("gui_running")
 	set background=dark
 	hi SpellBad ctermfg=Black
 else
-	" Always show tab-bar in GVIM
+	" Always show tab-bar in GVim
 	set showtabline=2
+
+	" Fix airline in GVim
+	if !exists('g:airline_symbols')
+		let g:airline_symbols = {}
+	endif
+	let g:airline_symbols.space = "\u3000"
 endif
 
 " Syntax highlighting
@@ -72,6 +78,8 @@ set wildmode=longest,list,full
 " enable folding
 set foldmethod=syntax
 let xml_syntax_folding=1
+" Set keycode timeout to 0 ms. Reduces lag when pressing Alt-O on terminal and between leaving insert mode and update of airline
+set ttimeoutlen=0
 
 " Set Syntastic options
 let g:syntastic_exit_checks=0
@@ -87,8 +95,8 @@ let g:ycm_autoclose_preview_window_after_insertion=1
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_complete_in_comments=1
 let g:ycm_collect_identifiers_from_comments_and_strings=1
-let g:ycm_semantic_triggers={'haskell': ['.']}
-let g:ycm_filetype_blacklist = {}
+let g:ycm_semantic_triggers={'haskell': ['.'], 'xml': ['</']}
+let g:ycm_filetype_blacklist={}
 
 " Set javacomplete options
 let g:nailgun_port='2113'
@@ -96,10 +104,13 @@ let g:javacomplete_ng='ng-nailgun'
 let g:javacomplete_methods_paren_close_noargs=1
 
 " Airline options
-let g:airline_powerline_fonts = 1
+let g:airline_powerline_fonts=1
 
 " CtrlP options
 let g:ctrlp_cmd='CtrlPMixed'
+let g:ctrlp_user_command='find %s -maxdepth 5 -type f | grep -v "/\.git/\|/tmp/\|~$\|\.swp$\|\.mp4$\|\.mpg$\|\.mkv$\|\.jpg$"'
+let g:ctrlp_mruf_exclude='/\.git/.*'
+let g:ctrlp_working_path_mode=0
 
 " Pydoc options
 let g:pydoc_cmd = '/usr/bin/pydoc3'
@@ -133,7 +144,7 @@ au FileType ruby	setlocal softtabstop=2 shiftwidth=2 expandtab
 au FileType r		setlocal softtabstop=2 shiftwidth=2 expandtab
 
 " Org ft options
-au FileType org		setlocal softtabstop=2 shiftwidth=2 expandtab
+au FileType org		setlocal shiftwidth=1
 au FileType org		inoremap <C-L> <Esc>:OrgCheckBoxNewBelow<CR>
 
 " Matlab ft options
@@ -158,9 +169,19 @@ au FileType haskell	setlocal softtabstop=4 shiftwidth=4 expandtab
 " HTML ft options
 au FileType html	setlocal softtabstop=2 shiftwidth=2 expandtab
 
+" XML ft options
+au FileType xml		setlocal softtabstop=2 shiftwidth=2 expandtab
+
+" ATL ft options
+au BufRead *.atl	setlocal syntax=haskell " Haskell syntax seems to be close to ATL
+
 " It's All Text options
 au BufRead ~/.mozilla/firefox/*/itsalltext/blog.online-urbanus.be*	setlocal ft=mkd spelllang=nl
 au BufRead ~/.mozilla/firefox/*/itsalltext/github*			setlocal ft=mkd
+
+" org mode files in cloud
+au BufWritePre ~/cloud/**.org	call SetBackup()
+au BufWritePost ~/cloud/**.org	call UnsetBackup()
 
 " Custom key mappings
 nnoremap <up> gk
@@ -172,6 +193,10 @@ vnoremap <down> gj
 vnoremap > >gv
 vnoremap < <gv
 nnoremap <tab> za
+inoremap <A-A> <C-O>A
+inoremap <A-O> <C-O>O
+" inoremap <A-o> <C-O>o
+nnoremap <C-n> :nohlsearch<CR>
 inoremap <C-Space> <C-x><C-o>
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 imap <C-@> <C-Space>
@@ -179,3 +204,17 @@ imap <C-@> <C-Space>
 " Custom commands
 com TODO tabnew ~/cloud/config/notes/Tasks.org
 com -narg=1 -complete=file AddJavaClasspath let g:syntastic_java_javac_classpath=g:syntastic_java_javac_classpath . ':' . <q-args> | JavaCompleteAddClassPath <q-args>
+
+" Primitive backup mechanism
+fun! SetBackup()
+	let g:org_backup_backup=&backup
+	let g:org_backup_backupdir=&backupdir
+	let g:org_backup_backupext=&backupext
+	set backup backupdir=./.backups
+	let &backupext='~' . strftime('%Y%m%d%H%M%S')
+endfun
+fun! UnsetBackup()
+	let &backup=g:org_backup_backup
+	let &backupdir=g:org_backup_backupdir
+	let &backupext=g:org_backup_backupext
+endfun
