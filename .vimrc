@@ -197,6 +197,9 @@ inoremap <A-A> <C-O>A
 inoremap <A-O> <C-O>O
 " inoremap <A-o> <C-O>o
 nnoremap <C-n> :nohlsearch<CR>
+cnoremap <C-a> <C-b>
+
+" keymappings for YCM
 inoremap <C-Space> <C-x><C-o>
 inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 imap <C-@> <C-Space>
