@@ -80,6 +80,8 @@ set foldmethod=syntax
 let xml_syntax_folding=1
 " Set keycode timeout to 0 ms. Reduces lag when pressing Alt-O on terminal and between leaving insert mode and update of airline
 set ttimeoutlen=0
+" Set default comments format
+set commentstring=#%s
 
 " Set Syntastic options
 let g:syntastic_exit_checks=0
@@ -95,8 +97,8 @@ let g:ycm_autoclose_preview_window_after_insertion=1
 let g:ycm_seed_identifiers_with_syntax=1
 let g:ycm_complete_in_comments=1
 let g:ycm_collect_identifiers_from_comments_and_strings=1
-let g:ycm_semantic_triggers={'haskell': ['.'], 'xml': ['</']}
-let g:ycm_filetype_blacklist={}
+let g:ycm_semantic_triggers={'haskell': ['.'], 'xml': ['</'], 'xsd': ['</']}
+let g:ycm_filetype_blacklist={'help': 1, 'text': 1}
 
 " Set javacomplete options
 let g:nailgun_port='2113'
@@ -132,6 +134,9 @@ let VIMPRESS = {} " circumvent bug when opening post
 " neco-ghc options
 let g:necoghc_enable_detailed_browse=1
 
+" vim-orgmode options
+let g:org_agenda_files=['~/vcs/config/notes/*.org']
+
 " Bulk options
 au FileType haskell,prolog,matlab,tmux	setlocal nospell
 au FileType org,latex,mail		setlocal spelllang=nl
@@ -146,6 +151,14 @@ au FileType r		setlocal softtabstop=2 shiftwidth=2 expandtab
 " Org ft options
 au FileType org		setlocal shiftwidth=1
 au FileType org		inoremap <C-L> <Esc>:OrgCheckBoxNewBelow<CR>
+au FileType org		setlocal indentexpr=		" temporally measure to fix some problems
+au FileType org		iabbrev <expr> <buffer> <silent> :time: '['.strftime('%F %a %R').']'
+
+au BufUnload ~/vcs/config/notes/*.org	!git -C <afile>:p:h autocommit
+au BufAdd ~/vcss/config/notes/*.org	!git -C <afile>:p:h autocommit
+
+" orgagenda ft options
+au FileType orgagenda	setlocal nospell
 
 " Matlab ft options
 au FileType matlab	setlocal softtabstop=4 shiftwidth=4 expandtab
@@ -170,18 +183,17 @@ au FileType haskell	setlocal softtabstop=4 shiftwidth=4 expandtab
 au FileType html	setlocal softtabstop=2 shiftwidth=2 expandtab
 
 " XML ft options
-au FileType xml		setlocal softtabstop=2 shiftwidth=2 expandtab
+au FileType xml,xsd	setlocal softtabstop=2 shiftwidth=2 expandtab
 
 " ATL ft options
 au BufRead *.atl	setlocal syntax=haskell " Haskell syntax seems to be close to ATL
+au BufRead *.atl	setlocal softtabstop=4 shiftwidth=4 expandtab
+au BufRead *.atl	setlocal nospell
+au BufRead *.atl	setlocal commentstring=--%s
 
 " It's All Text options
 au BufRead ~/.mozilla/firefox/*/itsalltext/blog.online-urbanus.be*	setlocal ft=mkd spelllang=nl
 au BufRead ~/.mozilla/firefox/*/itsalltext/github*			setlocal ft=mkd
-
-" org mode files in cloud
-au BufWritePre ~/cloud/**.org	call SetBackup()
-au BufWritePost ~/cloud/**.org	call UnsetBackup()
 
 " Custom key mappings
 nnoremap <up> gk
@@ -198,6 +210,8 @@ inoremap <A-O> <C-O>O
 " inoremap <A-o> <C-O>o
 nnoremap <C-n> :nohlsearch<CR>
 cnoremap <C-a> <C-b>
+cnoremap <C-d> <Del>
+nnoremap gA :py ORGMODE.plugins[u"Agenda"].list_all_todos()<CR>
 
 " keymappings for YCM
 inoremap <C-Space> <C-x><C-o>
@@ -205,19 +219,5 @@ inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
 imap <C-@> <C-Space>
 
 " Custom commands
-com TODO tabnew ~/cloud/config/notes/Tasks.org
+com TODO tabnew ~/vcs/config/notes/Tasks.org
 com -narg=1 -complete=file AddJavaClasspath let g:syntastic_java_javac_classpath=g:syntastic_java_javac_classpath . ':' . <q-args> | JavaCompleteAddClassPath <q-args>
-
-" Primitive backup mechanism
-fun! SetBackup()
-	let g:org_backup_backup=&backup
-	let g:org_backup_backupdir=&backupdir
-	let g:org_backup_backupext=&backupext
-	set backup backupdir=./.backups
-	let &backupext='~' . strftime('%Y%m%d%H%M%S')
-endfun
-fun! UnsetBackup()
-	let &backup=g:org_backup_backup
-	let &backupdir=g:org_backup_backupdir
-	let &backupext=g:org_backup_backupext
-endfun
